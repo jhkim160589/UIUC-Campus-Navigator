@@ -1,0 +1,24 @@
+# Local Postgres for development.
+#   docker compose up -d      start
+#   docker compose down       stop (data survives)
+#   docker compose down -v    stop and WIPE the database
+services:
+  db:
+    image: postgres:16
+    container_name: campus-navigator-db
+    environment:
+      POSTGRES_USER: navigator
+      POSTGRES_PASSWORD: navigator
+      POSTGRES_DB: campus_navigator
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U navigator -d campus_navigator"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

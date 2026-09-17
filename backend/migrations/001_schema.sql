@@ -1,0 +1,49 @@
+-- ============================================================================
+-- Campus Navigator - initial schema
+--
+-- YOU WRITE THIS FILE. It is intentionally empty.
+--
+-- Per CLAUDE.md, schema design is one of the four things you type yourself.
+-- "Why does this foreign key exist?" is an interview question you will be asked,
+-- and the only way to answer it is to have made the decision.
+--
+-- ----------------------------------------------------------------------------
+-- What the data actually looks like (measured 2026-09-17, see
+-- docs/week1-api-recon.md for the full recon):
+--
+--   A course (CS 225) has many sections (ABA, ABB, ABC, ... 12 of them).
+--   A section has one or more meetings. In a 48-course sample: 804 sections,
+--   807 meetings - so multi-meeting sections exist but are rare. A schema that
+--   folds meeting into section will lose those 3 rows silently.
+--   A meeting names a building by free-text string, not by id.
+--
+-- Decisions to make before you type CREATE TABLE:
+--
+--   1. daysOfTheWeek arrives as "MWF" / "TR" / "R". One row per meeting with the
+--      string stored, or one row per (meeting, weekday)? The router walks a
+--      single day at a time - which shape does that query want?
+--
+--   2. Buildings are referenced by name only. Do you key `buildings` on the raw
+--      API string, or assign a surrogate id and keep the raw string alongside?
+--      Remember 'Electrical & Computer Eng Bldg' and 'Materials Science & Eng Bld'
+--      are the API's own spellings, and you cannot change them.
+--
+--   3. 17 of 807 meetings have no building ('n.a.'), 10 say 'Location Pending',
+--      10 are online (type ONL/OLC), and some name a street address instead of a
+--      campus building ('1203 1/2 W Nevada', '200 S Wacker' - that one is in
+--      Chicago). Drop them at ingest, or store them with a null building FK?
+--      Whichever you choose, the route builder has to skip them either way.
+--
+--   4. Coordinates: on the buildings table, or a separate table? Geocoding runs
+--      once and is cached - where does the cache live, and how do you know a
+--      given building has not been geocoded yet?
+--
+--   5. Re-ingest: when you pull the term again, do rows update in place or get
+--      replaced? What is the natural key that makes that decision possible?
+--      (CRN is unique within a term. Across terms it is not.)
+--
+-- Keep it idempotent - apply_migrations() in app/db.py re-runs every file with
+-- no state tracking, so use CREATE TABLE IF NOT EXISTS.
+--
+-- Sketch the tables and arrows on paper first. Then type them here.
+-- ============================================================================
